@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "faraday-net_http", ">= 2.0"
   spec.add_dependency "activesupport", ">= 7.0"
 
+  spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "webmock", "~> 3.0"
   spec.add_development_dependency "standard"
