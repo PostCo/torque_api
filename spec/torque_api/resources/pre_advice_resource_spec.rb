@@ -32,9 +32,11 @@ RSpec.describe TorqueAPI::PreAdviceResource do
           )
       end
 
-      it "posts the payload to /preAdvice" do
+      it "posts the payload to /preAdvice and returns a Base object" do
         result = client.pre_advice.create(payload)
-        expect(result).to eq({"status" => "success"})
+        expect(result).to be_a(TorqueAPI::Objects::PreAdviceResponse)
+        expect(result.status).to eq("success")
+        expect(result.raw).to eq({"status" => "success"})
       end
 
       it "passes the payload through without key transformation" do

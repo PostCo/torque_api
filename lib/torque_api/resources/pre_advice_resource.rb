@@ -1,7 +1,8 @@
 module TorqueAPI
   class PreAdviceResource < Resource
     def create(payload)
-      post_request("preAdvice", body: payload)
+      data = post_request("preAdvice", body: payload)
+      Objects::PreAdviceResponse.new(data)
     end
   end
 end

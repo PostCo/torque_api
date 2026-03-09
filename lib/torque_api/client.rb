@@ -29,7 +29,7 @@ module TorqueAPI
         conn.headers["Accept"] = "application/json"
         client_defaults.each { |key, value| conn.headers[key.to_s] = value.to_s }
         conn.request :json
-        conn.response :json, content_type: "application/json"
+        conn.response :json, content_type: /\bjson/
         conn.adapter adapter
       end
     end

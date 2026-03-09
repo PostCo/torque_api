@@ -14,33 +14,36 @@ RSpec.describe TorqueAPI::ReturnRmaResource do
       sandbox: true
     )
   end
-  let(:endpoint_url) { "#{TorqueAPI::Client::TEST_BASE_URL}returnRma" }
+  let(:endpoint_url) { "#{TorqueAPI::Client::TEST_BASE_URL}returnRma/100" }
 
   describe "#list" do
     context "when items are returned" do
       let(:response_body) do
-        [
-          {
-            "orderid" => "12345",
-            "Sku_Id" => "SKU-001",
-            "Sampling_Type" => "GOOD",
-            "Condition" => "A",
-            "Reason_Code" => "RC1",
-            "Reason_Notes" => "Good condition",
-            "Qty_Returned" => 1,
-            "Return_Date" => "2025-03-01"
-          },
-          {
-            "orderid" => "12345",
-            "Sku_Id" => "SKU-002",
-            "Sampling_Type" => "BAD",
-            "Condition" => "D",
-            "Reason_Code" => "RC2",
-            "Reason_Notes" => "Damaged",
-            "Qty_Returned" => 1,
-            "Return_Date" => "2025-03-01"
-          }
-        ]
+        {
+          "ApiMessage" => "Returns Returned",
+          "ApiNumber" => "RTS001",
+          "returnResponse" => [
+            {
+              "orderid" => "RMA12345",
+              "returns" => [
+                {
+                  "condition" => "GOOD",
+                  "customer" => "Persons Name",
+                  "sku" => "5053256503004",
+                  "sampling_type" => "GOOD",
+                  "qty_returned" => "1",
+                  "reason_code" => "6",
+                  "reason_notes" => "Style doesn't suit",
+                  "return_date" => "23-MAR-2021"
+                }
+              ]
+            },
+            {
+              "orderid" => "RMA12346",
+              "returns" => []
+            }
+          ]
+        }
       end
 
       before do
@@ -52,33 +55,27 @@ RSpec.describe TorqueAPI::ReturnRmaResource do
           )
       end
 
-      it "returns an array of ReturnRma objects" do
-        items = client.return_rma.list
-        expect(items).to all(be_a(TorqueAPI::Objects::ReturnRma))
-        expect(items.length).to eq(2)
+      it "returns a Base object with the full response" do
+        result = client.return_rma.list
+        expect(result).to be_a(TorqueAPI::Objects::ReturnRmaResponse)
+        expect(result.api_message).to eq("Returns Returned")
+        expect(result.api_number).to eq("RTS001")
       end
 
-      it "converts response keys to snake_case" do
-        items = client.return_rma.list
-        item = items.first
+      it "converts nested response keys to snake_case" do
+        result = client.return_rma.list
+        first_order = result.return_response.first
 
-        expect(item.orderid).to eq("12345")
-        expect(item.sku_id).to eq("SKU-001")
-        expect(item.sampling_type).to eq("GOOD")
-        expect(item.condition).to eq("A")
-        expect(item.reason_code).to eq("RC1")
-        expect(item.reason_notes).to eq("Good condition")
-        expect(item.qty_returned).to eq(1)
-        expect(item.return_date).to eq("2025-03-01")
+        expect(first_order.orderid).to eq("RMA12345")
+        expect(first_order.returns.first.sku).to eq("5053256503004")
+        expect(first_order.returns.first.sampling_type).to eq("GOOD")
+        expect(first_order.returns.first.reason_code).to eq("6")
       end
 
       it "preserves original response via .raw" do
-        items = client.return_rma.list
-        raw = items.first.raw
-
-        expect(raw["Sku_Id"]).to eq("SKU-001")
-        expect(raw["Sampling_Type"]).to eq("GOOD")
-        expect(raw).to be_frozen
+        result = client.return_rma.list
+        expect(result.raw).to eq(response_body)
+        expect(result.raw).to be_frozen
       end
 
       it "sends client default headers" do
@@ -94,33 +91,20 @@ RSpec.describe TorqueAPI::ReturnRmaResource do
       end
     end
 
-    context "when response is empty" do
+    context "when returnResponse is empty" do
       before do
         stub_request(:get, endpoint_url)
           .to_return(
             status: 200,
-            body: [].to_json,
+            body: {"ApiMessage" => "Returns Returned", "ApiNumber" => "RTS001", "returnResponse" => []}.to_json,
             headers: {"Content-Type" => "application/json"}
           )
       end
 
-      it "returns an empty array" do
-        expect(client.return_rma.list).to eq([])
-      end
-    end
-
-    context "when response is nil" do
-      before do
-        stub_request(:get, endpoint_url)
-          .to_return(
-            status: 200,
-            body: "null",
-            headers: {"Content-Type" => "application/json"}
-          )
-      end
-
-      it "returns an empty array" do
-        expect(client.return_rma.list).to eq([])
+      it "returns a Base object with empty returnResponse" do
+        result = client.return_rma.list
+        expect(result).to be_a(TorqueAPI::Objects::ReturnRmaResponse)
+        expect(result.return_response).to eq([])
       end
     end
 

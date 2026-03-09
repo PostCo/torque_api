@@ -1,5 +1,5 @@
 module TorqueAPI
   module Objects
-    class ReturnRma < Base; end
+    class PreAdviceResponse < Base; end
   end
 end

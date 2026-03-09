@@ -50,20 +50,29 @@ payload = [
 ]
 
 response = client.pre_advice.create(payload)
+# Returns a TorqueAPI::Objects::PreAdviceResponse
+
+response.api_message               # snake_case accessors
+response.pre_advice_success_response
+response.raw                       # Access original (frozen) response data
 ```
 
 ### Poll Return RMA items
 
 ```ruby
-items = client.return_rma.list
-# Returns an array of TorqueAPI::Objects::ReturnRma
+response = client.return_rma.list
+# Returns a TorqueAPI::Objects::ReturnRmaResponse
 
-items.each do |item|
-  puts item.orderid          # snake_case accessors
-  puts item.sku_id
-  puts item.sampling_type
-  puts item.raw              # Access original (frozen) response data
+response.api_message
+response.return_response.each do |order|
+  puts order.orderid
+  order.returns.each do |item|
+    puts item.sku
+    puts item.sampling_type
+    puts item.condition
+  end
 end
+response.raw                       # Access original (frozen) response data
 ```
 
 ### Error handling

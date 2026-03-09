@@ -15,6 +15,7 @@ module TorqueAPI
   autoload :ReturnRmaResource, "torque_api/resources/return_rma_resource"
 
   module Objects
-    autoload :ReturnRma, "torque_api/objects/return_rma"
+    autoload :PreAdviceResponse, "torque_api/objects/pre_advice_response"
+    autoload :ReturnRmaResponse, "torque_api/objects/return_rma_response"
   end
 end

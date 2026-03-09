@@ -1,3 +1,5 @@
+require "json"
+
 module TorqueAPI
   class Resource
     attr_reader :client
@@ -21,11 +23,19 @@ module TorqueAPI
     end
 
     def handle_response(response)
-      return response.body if response.status.between?(200, 299)
+      body = parse_body(response.body)
+      return body if response.status.between?(200, 299)
 
       error_class, prefix = error_mapping(response.status)
-      message = "#{prefix} (HTTP #{response.status}): #{extract_error_message(response.body)}"
+      message = "#{prefix} (HTTP #{response.status}): #{extract_error_message(body)}"
       raise error_class.new(message, response: response, status_code: response.status)
+    end
+
+    def parse_body(body)
+      return body unless body.is_a?(String)
+      JSON.parse(body)
+    rescue JSON::ParserError
+      body
     end
 
     def error_mapping(status)
